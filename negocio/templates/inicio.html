@@ -2,9 +2,13 @@
 {% load static %}
 
 {% block content %}
-<div class="text-center my-5">
-    <h1 class="display-4 fw-bold">Bienvenido</h1>
-    <p class="lead text-muted">Tu tienda de tecnología</p>
-    <a href="{% url 'catalogo' %}" class="btn btn-primary btn-lg">Ver Catálogo de Productos</a>
+<div class="px-4 py-5 my-5 text-center bg-white rounded-4 shadow-sm border border-light">
+    <h1 class="display-4 fw-bold text-primary mb-3">Bienvenido</h1>
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4 text-secondary">Tu tienda de tecnología</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="{% url 'catalogo' %}" class="btn btn-primary btn-lg px-4 gap-3 shadow">Ver Catálogo de Productos</a>
+        </div>
+    </div>
 </div>
 {% endblock %}

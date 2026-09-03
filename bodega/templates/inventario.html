@@ -2,35 +2,45 @@
 {% load static %}
 
 {% block content %}
-<h2 class="mb-2">{{ datos.nombre_bodega }}</h2>
-<p class="text-muted">Responsable: {{ datos.responsable }}</p>
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+            <h2 class="mb-2 mb-md-0 text-primary fw-bold">{{ datos.nombre_bodega }}</h2>
+            <span class="badge bg-light text-dark border fs-6 px-3 py-2">
+                Responsable: <span class="fw-bold">{{ datos.responsable }}</span>
+            </span>
+        </div>
 
-<table class="table table-striped table-bordered">
-    <thead class="table-dark">
-        <tr>
-            <th>Código</th>
-            <th>Item</th>
-            <th>Cantidad</th>
-            <th>Estado</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in datos.inventario %}
-        <tr>
-            <td>{{ item.codigo }}</td>
-            <td>{{ item.item }}</td>
-            <td>{{ item.cantidad }}</td>
-            <td>
-                {% if item.estado == 'OK' %}
-                    <span class="badge bg-success">{{ item.estado }}</span>
-                {% elif item.estado == 'BAJO' %}
-                    <span class="badge bg-warning text-dark">{{ item.estado }}</span>
-                {% else %}
-                    <span class="badge bg-danger">{{ item.estado }}</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle mb-0">
+                <thead class="table-dark">
+                    <tr class="text-center">
+                        <th scope="col">Código</th>
+                        <th scope="col">Item</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in datos.inventario %}
+                    <tr>
+                        <td class="text-center fw-semibold text-secondary">{{ item.codigo }}</td>
+                        <td>{{ item.item }}</td>
+                        <td class="text-center fw-bold">{{ item.cantidad }}</td>
+                        <td class="text-center">
+                            {% if item.estado == 'OK' %}
+                                <span class="badge bg-success w-75 py-2">{{ item.estado }}</span>
+                            {% elif item.estado == 'BAJO' %}
+                                <span class="badge bg-warning text-dark w-75 py-2">{{ item.estado }}</span>
+                            {% else %}
+                                <span class="badge bg-danger w-75 py-2 shadow-sm">{{ item.estado }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}
