@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Reporte de Bodega</h2>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-bg-primary shadow">
+            <div class="card-body text-center">
+                <h3>{{ total_items }}</h3>
+                <p>Total de Items</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-danger shadow">
+            <div class="card-body text-center">
+                <h3>{{ criticos }}</h3>
+                <p>Items con Stock Bajo/Crítico</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-success shadow">
+            <div class="card-body text-center">
+                <h3>{{ datos.responsable }}</h3>
+                <p>Responsable</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5>Detalle de Alertas:</h5>
+<ul class="list-group">
+    {% for item in datos.inventario %}
+        {% if item.estado == 'CRÍTICO' or item.estado == 'BAJO' %}
+        <li class="list-group-item list-group-item-warning">
+            <strong>{{ item.codigo }}</strong> - {{ item.item }}
+            (Quedan solo <strong>{{ item.cantidad }}</strong> unidades)
+        </li>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endblock %}

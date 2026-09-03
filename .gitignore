@@ -1,0 +1,50 @@
+# =========================
+# Python
+# =========================
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+.Python
+env/
+venv/
+venv_*/
+.env
+pip-log.txt
+pip-delete-this-directory.txt
+
+# =========================
+# Django
+# =========================
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# =========================
+# Archivos subidos por usuarios (Media)
+# =========================
+media/
+
+# =========================
+# Archivos estáticos recopilados (Producción)
+# =========================
+# Nota: Si estás guardando tus CSS/JS locales para la evaluación,
+# asegúrate de no ignorar la carpeta donde los estás escribiendo,
+# pero sí puedes ignorar la carpeta donde se recopilan (como staticfiles/).
+staticfiles/
+static_root/
+
+# =========================
+# Herramientas de desarrollo / IDEs
+# =========================
+.idea/
+.vscode/
+*.swp
+*.sqlite
+
+# =========================
+# Sistema Operativo
+# =========================
+.DS_Store
+Thumbs.db

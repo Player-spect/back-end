@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h2 class="mb-2">{{ datos.nombre_bodega }}</h2>
+<p class="text-muted">Responsable: {{ datos.responsable }}</p>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Código</th>
+            <th>Item</th>
+            <th>Cantidad</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in datos.inventario %}
+        <tr>
+            <td>{{ item.codigo }}</td>
+            <td>{{ item.item }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>
+                {% if item.estado == 'OK' %}
+                    <span class="badge bg-success">{{ item.estado }}</span>
+                {% elif item.estado == 'BAJO' %}
+                    <span class="badge bg-warning text-dark">{{ item.estado }}</span>
+                {% else %}
+                    <span class="badge bg-danger">{{ item.estado }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

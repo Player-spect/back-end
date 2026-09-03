@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="text-center my-5">
+    <h1 class="display-4 fw-bold">Bienvenido</h1>
+    <p class="lead text-muted">Tu tienda de tecnología</p>
+    <a href="{% url 'catalogo' %}" class="btn btn-primary btn-lg">Ver Catálogo de Productos</a>
+</div>
+{% endblock %}
