@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block header %}Project Assignments{% endblock %}
+
+{% block content %}
+<!-- Agregar Imagen-->
+<div class="mb-4 text-center">
+    <img src="{% static 'img/' %}" alt="Operations Banner" class="img-fluid rounded" style="max-height: 200px;">
+</div>
+
+<div class="d-flex justify-content-between mb-3">
+    <div>
+        <a href="#" class="btn btn-success">Add Assignment</a>
+    </div>
+    <div>
+        <form class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Search...">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Employee</th>
+            <th>Project</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for assignment in assignments %}
+        <tr>
+            <td>{{ assignment.employee.name }}</td>
+            <td>{{ assignment.project.name }}</td>
+            <td>{{ assignment.role }}</td>
+            <td>
+                <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                <a href="#" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center">No assignments found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

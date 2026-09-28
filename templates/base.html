@@ -1,58 +1,42 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es" class="h-100">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Negocio y Bodega</title>
-    <!-- Carga de CSS Local de Bootstrap -->
+    <title>General Gestion</title>
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
 </head>
-<!-- Aplicamos bg-light para que los contenedores blancos resalten y flex-column para el sticky footer -->
-<body class="d-flex flex-column h-100 bg-light">
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top py-3">
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand fw-bold fs-4" href="{% url 'inicio' %}">Sistema de gestion</a>
-            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="menu">
-                <!-- Se agrega espaciado (px-2) y texto seminegrita a los enlaces -->
-                <ul class="navbar-nav ms-auto fw-semibold">
-                    <li class="nav-item px-2"><a class="nav-link" href="{% url 'inicio' %}">Inicio</a></li>
-                    <li class="nav-item px-2"><a class="nav-link" href="{% url 'catalogo' %}">Catálogo</a></li>
-                    <li class="nav-item px-2"><a class="nav-link" href="{% url 'inventario' %}">Inventario</a></li>
-                    <li class="nav-item px-2"><a class="nav-link" href="{% url 'reportes' %}">Reportes</a></li>
+            <a class="navbar-brand" href="#">Gestion de usuarios</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'employee_list' %}">Employees</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'department_list' %}">Departments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'project_list' %}">Projects</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'assignment_list' %}">Assignments</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Header -->
-    <!-- Se agrega una sombra suave y más relleno vertical para darle presencia -->
-    <header class="bg-primary text-white text-center py-4 shadow-sm">
+    <header class="bg-light py-3 mb-4 border-bottom">
         <div class="container">
-            <h4 class="mb-0 fw-bold tracking-wide">Sistema de Gestión - Negocio y Bodega</h4>
+            <h1 class="h3">{% block header %}Dashboard{% endblock %}</h1>
         </div>
     </header>
 
-    <!-- Contenido -->
-    <!-- flex-shrink-0 asegura que el contenedor empuje el footer hacia abajo -->
-    <main class="container flex-shrink-0 my-5">
-        {% block content %}{% endblock %}
+    <main class="container">
+        {% block content %}
+        {% endblock %}
     </main>
 
-    <!-- Footer -->
-    <!-- mt-auto es la clave para que el footer se quede al final de la pantalla -->
-    <footer class="footer mt-auto bg-dark text-white-50 text-center py-4 border-top border-secondary">
-        <div class="container">
-            <p class="mb-0 small">&copy; 2026 - Mi Tienda | Todos los derechos reservados</p>
-        </div>
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <p>&copy; 2026 Corporate Management System</p>
     </footer>
 
-    <!-- Carga de JS Local de Bootstrap -->
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 </body>
 </html>

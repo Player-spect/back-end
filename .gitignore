@@ -30,8 +30,6 @@ media/
 # Archivos estáticos recopilados (Producción)
 # =========================
 # Nota: Si estás guardando tus CSS/JS locales para la evaluación,
-# asegúrate de no ignorar la carpeta donde los estás escribiendo,
-# pero sí puedes ignorar la carpeta donde se recopilan (como staticfiles/).
 staticfiles/
 static_root/
 
