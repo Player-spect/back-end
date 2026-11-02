@@ -1,229 +1,171 @@
 # Gestión Corporativa
 
-Aplicación web desarrollada con **Django** para la gestión de información de una organización. El proyecto utiliza una base de datos relacional MySQL y Django ORM para la persistencia y consulta de los datos.
+Aplicación web desarrollada con **Django** para la gestión de información de una organización. Utiliza una base de datos relacional (MySQL en producción) y Django ORM para la persistencia y consulta de datos.
 
 ## Objetivo
 
-Transformar la información que inicialmente se encontraba almacenada en archivos JSON en una solución web basada en una base de datos relacional, permitiendo administrar las entidades mediante **Django Admin** y visualizar la información desde la aplicación web.
+Transformar la información que inicialmente se encontraba en archivos JSON en una solución web basada en una base de datos relacional, con autenticación propia, roles, dashboards diferenciados, mantenedores CRUD y transacciones operacionales. **No se utiliza Django Admin para operar el sistema**; toda la operación se realiza mediante plantillas propias.
 
 ## Tecnologías
 
 - Python
 - Django 6.1.1
-- MySQL
+- MySQL (producción) / SQLite (desarrollo)
 - mysqlclient
 - python-dotenv
-- HTML
-- Bootstrap
+- HTML / Bootstrap 5
 - Git / GitHub
 
 ## Estructura del proyecto
 
 ```text
-Gestion/
-├── gestion_corporativa/
-│   ├── settings.py
-│   ├── urls.py
-│   ├── asgi.py
-│   └── wsgi.py
-├── recursos_humanos/
-│   ├── migrations/
-│   ├── models.py
-│   ├── views.py
-│   ├── admin.py
-│   └── urls.py
-├── operaciones/
-│   ├── migrations/
-│   ├── models.py
-│   ├── views.py
-│   ├── admin.py
-│   └── urls.py
-├── templates/
-│   ├── base.html
-│   ├── recursos_humanos/
-│   └── operaciones/
-├── static/
-├── data.json
-├── loader.py
+BackEnd/
+├── gestion_corporativa/     # Configuración del proyecto
+├── core/                    # Autenticación, dashboards, usuarios y roles
+│   ├── decorators.py        # Decorador role_required
+│   ├── roles.py             # Definición de roles y permisos
+│   ├── forms.py             # Formularios de usuarios
+│   ├── views.py             # Dashboard y gestión de usuarios
+│   └── management/commands/setup_roles.py
+├── recursos_humanos/        # Department, Employee + CRUD
+├── operaciones/             # Project, Assignment + CRUD/transacción
+├── templates/               # Plantillas propias (Bootstrap)
+├── static/                  # CSS/JS de Bootstrap
+├── data.json                # Datos iniciales
+├── loader.py                # Carga inicial de datos
 ├── manage.py
 ├── requirements.txt
-├── .env
-└── .gitignore
+└── .env / .env.local        # Variables de entorno (no versionadas)
 ```
 
-## Aplicaciones
+## Modelos y relaciones
 
-### Recursos Humanos
-
-Esta aplicación administra:
-
-- **Department:** departamentos de la organización.
-- **Employee:** empleados y su departamento asociado.
-
-Relación:
-
-```text
-Department 1 ──────── N Employee
-```
-
-### Operaciones
-
-Esta aplicación administra:
-
-- **Project:** proyectos de la organización.
-- **Assignment:** asignaciones de empleados a proyectos.
+| Modelo | Aplicación | Descripción |
+|---|---|---|
+| Department | recursos_humanos | Departamentos |
+| Employee | recursos_humanos | Empleados (FK Department) |
+| Project | operaciones | Proyectos |
+| Assignment | operaciones | Asignación empleado-proyecto (FK Employee, Project) |
 
 Relaciones:
 
 ```text
-Employee 1 ──────── N Assignment N ──────── 1 Project
+Department 1 ──── N Employee
+Employee   1 ──── N Assignment N ──── 1 Project
 ```
 
-## Modelos y persistencia
+## Roles y permisos
 
-La aplicación utiliza **Django ORM** para trabajar con la base de datos.
+El sistema define tres grupos de Django:
 
-Los modelos principales son:
+| Rol | Acceso |
+|---|---|
+| **Administrador** | Acceso total: mantenedores, transacciones, gestión de usuarios y dashboards globales. |
+| **Supervisor** | Crear/editar mantenedores y asignaciones; sin eliminación ni gestión de usuarios. |
+| **Administrativo** | Solo lectura de información operativa; operaciones críticas bloqueadas. |
 
-| Modelo | Aplicación | Descripción |
-|---|---|---|
-| Department | recursos_humanos | Representa los departamentos |
-| Employee | recursos_humanos | Representa los empleados |
-| Project | operaciones | Representa los proyectos |
-| Assignment | operaciones | Relaciona empleados con proyectos |
-
-Las relaciones entre entidades se implementan mediante `ForeignKey`.
-
-## Migración de datos
-
-El proyecto incluye `data.json` como fuente de información inicial y `loader.py` para cargar esa información mediante Django ORM hacia la base de datos.
-
-Una vez realizada la carga, las vistas de la aplicación consultan la información directamente desde la base de datos mediante Django ORM.
-
-## Django Admin
-
-Todas las entidades del proyecto se encuentran registradas en Django Admin.
-
-Desde el panel de administración es posible:
-
-- Crear registros.
-- Modificar registros.
-- Eliminar registros.
-- Visualizar registros.
-- Buscar registros mediante los campos configurados en `search_fields`.
-- Trabajar con entidades relacionadas mediante las relaciones definidas en los modelos.
-
-Para acceder al panel:
-
-```text
-/admin/
-```
-
-Se requiere un usuario administrador creado con:
+Los grupos y permisos se crean con:
 
 ```bash
-python manage.py createsuperuser
+python manage.py setup_roles
 ```
 
-## Aplicación web
+La autorización de vistas se implementa con el decorador `core.decorators.role_required`.
 
-La aplicación cuenta con vistas para visualizar:
+## Funcionalidades
 
-- Empleados.
-- Departamentos.
-- Proyectos.
-- Asignaciones.
+- Inicio y cierre de sesión propios (sin Django Admin).
+- Dashboards diferenciados por rol.
+- Gestión de usuarios desde la interfaz: crear, editar, asignar roles y eliminar.
+- Recuperación de contraseña por correo con token seguro de Django.
+- Mantenedores CRUD: Departamentos, Empleados, Proyectos.
+- Transacción operacional: Asignaciones (Empleado + Proyecto) con validación de duplicados.
+- Búsqueda en todos los listados.
+- **Protección global de sesión**: `LoginRequiredMiddleware` exige autenticación en todas las rutas, excepto login y recuperación de contraseña (`@login_not_required`).
+- Rutas inexistentes responden **404** con página propia; accesos sin permiso responden **403**.
+- Validación de **RUT chileno** (módulo 11) en el mantenedor de empleados.
+- Nombre de usuario limitado a **32 caracteres**.
+- Política de contraseñas: mínimo 8 caracteres, una mayúscula, un número y un carácter especial.
 
-Los listados utilizan consultas mediante Django ORM y se presentan mediante plantillas HTML con Bootstrap.
+## Configuración del entorno
 
-Las vistas incluyen los controles visuales de **Agregar, Modificar, Eliminar y Buscar** requeridos para la interfaz. Las operaciones CRUD desde la interfaz pública no forman parte de esta etapa de evaluación.
+Variables utilizadas (archivo `.env` o `.env.local`):
 
-## Base de datos
+```env
+SECRET_KEY=...
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
 
-La configuración de la base de datos utiliza MySQL y variables de entorno.
+DB_NAME=...
+DB_USER=...
+DB_PASSWORD=...
+DB_HOST=...
+DB_PORT=3306
 
-Las variables utilizadas son:
-
-```text
-SECRET_KEY
-DB_NAME
-DB_USER
-DB_PASSWORD
-DB_HOST
-DB_PORT
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.ejemplo.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=...
+EMAIL_HOST_PASSWORD=...
+DEFAULT_FROM_EMAIL=no-reply@ejemplo.cl
 ```
 
-No se deben publicar credenciales reales en el repositorio.
+Si no se define `DB_HOST`, el proyecto usa **SQLite** (`db.sqlite3`) para desarrollo. En producción (AWS EC2) se configuran las variables `DB_*` para usar **MySQL**.
 
 ## Instalación
-
-### 1. Clonar el repositorio
-
-```bash
-git clone https://github.com/Player-spect/back-end.git
-cd back-end
-```
-
-### 2. Crear y activar el entorno virtual
-
-Linux/macOS:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-```
-
-### 3. Instalar dependencias
-
-```bash
 pip install -r requirements.txt
-```
-
-### 4. Configurar variables de entorno
-
-Crear un archivo `.env` en la raíz del proyecto con los valores correspondientes a la instalación de MySQL.
-
-Ejemplo de estructura:
-
-```env
-SECRET_KEY=secret_key
-DB_NAME=nombre_base_de_datos
-DB_USER=usuario_mysql
-DB_PASSWORD=contraseña_mysql
-DB_HOST=localhost
-DB_PORT=3306
-```
-
-### 5. Aplicar migraciones
-
-```bash
+cp .env.example .env   # completar credenciales
 python manage.py migrate
-```
-
-### 6. Crear usuario administrador
-
-```bash
-python manage.py createsuperuser
-```
-
-### 7. Ejecutar el servidor de desarrollo
-
-```bash
+python manage.py setup_roles
+python manage.py loaddata  # opcional, si se usan fixtures
+python loader.py          # carga inicial desde data.json
 python manage.py runserver
 ```
 
-Luego acceder a:
+Acceder a `http://127.0.0.1:8000/login/`.
 
-```text
-http://127.0.0.1:8080/
+## Usuarios de demostración (desarrollo)
+
+| Usuario | Contraseña | Rol |
+|---|---|---|
+| admin | Admin12345! | Administrador |
+| supervisor | Supervisor12345! | Supervisor |
+| administrativo | Administrativo12345! | Administrativo |
+
+> Las contraseñas se almacenan como hash PBKDF2-SHA256 (nunca en texto plano).
+> Política: mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial.
+
+> Cambiar estas contraseñas antes de cualquier despliegue real.
+
+## Pruebas
+
+```bash
+python manage.py test
 ```
 
-Y al panel administrativo:
+Cubren autenticación, autorización por rol, dashboards, CRUD y recuperación de contraseña.
 
-```text
-http://127.0.0.1:8080/admin/
+### Probar recuperación de contraseña en desarrollo
+
+Con el backend de correo de consola, el email se imprime en la terminal y el enlace puede aparecer **cortado por el formato quoted-printable** (`=\n`), por lo que copiarlo tal cual resulta inválido. Para obtener un enlace limpio y válido:
+
+```bash
+python manage.py reset_link admin
+# o por email:
+python manage.py reset_link admin@empresa.cl --base-url http://127.0.0.1:8000
 ```
 
-## Variables sensibles
+Abre el enlace mostrado, define la nueva contraseña y accede. También puedes probar el flujo real desde `/password-reset/` configurando un SMTP en `.env`.
 
-El archivo `.env` contiene información sensible y debe mantenerse fuera del control de versiones. El proyecto utiliza `.gitignore` para evitar que este archivo sea incluido en Git.
+## Despliegue en AWS EC2
+
+1. Clonar el repositorio e instalar dependencias en un virtualenv.
+2. Configurar `.env` con credenciales de MySQL y SMTP.
+3. Ejecutar `migrate`, `setup_roles` y `collectstatic`.
+4. Servir con Gunicorn detrás de Nginx.
+5. Configurar `ALLOWED_HOSTS` con el dominio/IP de la instancia y `DEBUG=False`.

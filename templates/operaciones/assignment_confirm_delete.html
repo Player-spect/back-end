@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar asignación{% endblock %}
+{% block header %}Eliminar asignación{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger">
+    ¿Seguro que deseas eliminar la asignación de
+    <strong>{{ assignment.employee.name }}</strong> al proyecto
+    <strong>{{ assignment.project.name }}</strong>?
+</div>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a href="{% url 'assignment_list' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

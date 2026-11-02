@@ -1,5 +1,8 @@
 from django.db import models
 
+from .validators import validar_rut
+
+
 class Department(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -8,7 +11,7 @@ class Department(models.Model):
         return self.name
 
 class Employee(models.Model):
-    rut = models.CharField(max_length=12, unique=True)
+    rut = models.CharField(max_length=12, unique=True, validators=[validar_rut])
     name = models.CharField(max_length=150)
     position = models.CharField(max_length=100)
     email = models.EmailField()

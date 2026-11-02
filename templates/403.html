@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Acceso denegado{% endblock %}
+{% block header %}403 — Acceso denegado{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger">
+    No tienes permisos para acceder a esta sección con tu rol actual.
+</div>
+<a href="{% url 'dashboard' %}" class="btn btn-primary">Volver al dashboard</a>
+{% endblock %}

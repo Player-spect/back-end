@@ -1,10 +1,14 @@
-from django.contrib import admin
-from django.urls import path, include
-from django.views.generic import RedirectView
+from django.urls import include, path
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # Django Admin deshabilitado: la operación del sistema se realiza
+    # exclusivamente mediante las vistas y plantillas propias.
     path('hr/', include('recursos_humanos.urls')),
     path('operations/', include('operaciones.urls')),
-    path('', RedirectView.as_view(url='/hr/employees/', permanent=False)),
+    path('', include('core.urls')),
 ]
+
+# Páginas de error propias (se usan cuando DEBUG=False).
+handler403 = 'core.views.error_403'
+handler404 = 'core.views.error_404'
+handler500 = 'core.views.error_500'

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block header %}Dashboard{% endblock %}
+
+{% block content %}
+<p class="text-muted">
+    Bienvenido, <strong>{{ user.get_full_name|default:user.username }}</strong>.
+    Rol:
+    {% for grupo in user.groups.all %}<span class="badge bg-primary">{{ grupo.name }}</span>{% empty %}<span class="badge bg-secondary">Sin rol</span>{% endfor %}
+    {% if user.is_superuser %}<span class="badge bg-dark">Superusuario</span>{% endif %}
+</p>
+
+{% if es_admin %}
+<h2 class="h4 mt-4">Panel de Administración</h2>
+<div class="row g-3">
+    <div class="col-md-3"><div class="card text-center p-3"><div class="h2">{{ total_employees }}</div><div>Empleados</div></div></div>
+    <div class="col-md-3"><div class="card text-center p-3"><div class="h2">{{ total_departments }}</div><div>Departamentos</div></div></div>
+    <div class="col-md-3"><div class="card text-center p-3"><div class="h2">{{ total_projects }}</div><div>Proyectos</div></div></div>
+    <div class="col-md-3"><div class="card text-center p-3"><div class="h2">{{ total_assignments }}</div><div>Asignaciones</div></div></div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h3 class="h6">Accesos rápidos</h3>
+            <a class="btn btn-outline-primary btn-sm mb-1" href="{% url 'user_list' %}">Gestión de usuarios</a>
+            <a class="btn btn-outline-primary btn-sm mb-1" href="{% url 'department_list' %}">Mantenedor de departamentos</a>
+            <a class="btn btn-outline-primary btn-sm mb-1" href="{% url 'project_list' %}">Mantenedor de proyectos</a>
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'assignment_list' %}">Transacciones: asignaciones</a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h3 class="h6">Proyectos por estado</h3>
+            <ul class="list-group list-group-flush">
+                {% for fila in proyectos_por_estado %}
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>{{ fila.status }}</span><span class="badge bg-secondary">{{ fila.total }}</span>
+                </li>
+                {% empty %}<li class="list-group-item">Sin proyectos.</li>{% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% elif es_supervisor %}
+<h2 class="h4 mt-4">Panel de Supervisión</h2>
+<div class="row g-3">
+    <div class="col-md-6"><div class="card text-center p-3"><div class="h2">{{ total_projects }}</div><div>Proyectos</div></div></div>
+    <div class="col-md-6"><div class="card text-center p-3"><div class="h2">{{ total_assignments }}</div><div>Asignaciones</div></div></div>
+</div>
+<div class="card p-3 mt-3">
+    <h3 class="h6">Proyectos activos</h3>
+    <ul class="list-group list-group-flush">
+        {% for proyecto in proyectos_activos %}
+        <li class="list-group-item d-flex justify-content-between">
+            <span>{{ proyecto.name }}</span><span class="badge bg-success">{{ proyecto.get_status_display }}</span>
+        </li>
+        {% empty %}<li class="list-group-item">Sin proyectos activos.</li>{% endfor %}
+    </ul>
+</div>
+<div class="card p-3 mt-3">
+    <h3 class="h6">Asignaciones recientes</h3>
+    <ul class="list-group list-group-flush">
+        {% for asignacion in asignaciones_recientes %}
+        <li class="list-group-item">{{ asignacion.employee.name }} → {{ asignacion.project.name }} ({{ asignacion.role }})</li>
+        {% empty %}<li class="list-group-item">Sin asignaciones.</li>{% endfor %}
+    </ul>
+</div>
+
+{% elif es_administrativo %}
+<h2 class="h4 mt-4">Panel Administrativo</h2>
+<div class="row g-3">
+    <div class="col-md-6"><div class="card text-center p-3"><div class="h2">{{ total_employees }}</div><div>Empleados</div></div></div>
+    <div class="col-md-6"><div class="card text-center p-3"><div class="h2">{{ total_departments }}</div><div>Departamentos</div></div></div>
+</div>
+<div class="card p-3 mt-3">
+    <h3 class="h6">Empleados</h3>
+    <ul class="list-group list-group-flush">
+        {% for empleado in empleados %}
+        <li class="list-group-item">{{ empleado.name }} — {{ empleado.department.name }}</li>
+        {% empty %}<li class="list-group-item">Sin empleados.</li>{% endfor %}
+    </ul>
+</div>
+{% else %}
+<div class="alert alert-warning">Tu usuario no tiene un rol asignado. Contacta al administrador.</div>
+{% endif %}
+{% endblock %}

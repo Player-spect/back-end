@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Página no encontrada{% endblock %}
+{% block header %}404 — Página no encontrada{% endblock %}
+
+{% block content %}
+<div class="alert alert-warning">
+    La ruta solicitada no existe en el sistema.
+</div>
+<a href="{% url 'dashboard' %}" class="btn btn-primary">Volver al dashboard</a>
+{% endblock %}

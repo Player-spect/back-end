@@ -1,34 +1,34 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load auth_tags %}
 
-{% block header %}Project Management{% endblock %}
+{% block title %}Proyectos{% endblock %}
+{% block header %}Proyectos{% endblock %}
 
 {% block content %}
-<!-- agregar imagen -->
-<div class="mb-4 text-center">
-    <img src="{% static 'img/' %}" alt="Operations Banner" class="img-fluid rounded" style="max-height: 200px;">
+{% has_group 'Administrador' 'Supervisor' as puede_editar %}
+{% has_group 'Administrador' as es_admin %}
+<div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+    <div>
+        {% if puede_editar %}
+        <a href="{% url 'project_create' %}" class="btn btn-success">Agregar proyecto</a>
+        {% endif %}
+    </div>
+    <form class="d-flex" method="get">
+        <input class="form-control me-2" type="search" name="q" value="{{ q }}" placeholder="Buscar...">
+        <button class="btn btn-outline-primary" type="submit">Buscar</button>
+        {% if q %}<a href="{% url 'project_list' %}" class="btn btn-outline-secondary ms-2">Limpiar</a>{% endif %}
+    </form>
 </div>
 
-<div class="d-flex justify-content-between mb-3">
-    <div>
-        <a href="#" class="btn btn-success">Add Project</a>
-    </div>
-    <div>
-        <form class="d-flex">
-            <input class="form-control me-2" type="search" placeholder="Search...">
-            <button class="btn btn-outline-primary" type="submit">Search</button>
-        </form>
-    </div>
-</div>
-
-<table class="table table-striped table-bordered">
+<table class="table table-striped table-bordered bg-white align-middle">
     <thead class="table-dark">
         <tr>
-            <th>Project Name</th>
-            <th>Start Date</th>
-            <th>Status</th>
-            <th>Budget</th>
-            <th>Actions</th>
+            <th>Nombre</th>
+            <th>Inicio</th>
+            <th>Estado</th>
+            <th>Presupuesto</th>
+            <th>Asignaciones</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
@@ -37,20 +37,23 @@
             <td>{{ project.name }}</td>
             <td>{{ project.start_date }}</td>
             <td>
-                <span class="badge {% if project.status == 'ACTIVE' %}bg-success{% elif project.status == 'PAUSED' %}bg-warning{% else %}bg-secondary{% endif %}">
-                    {{ project.get_status_display }}
-                </span>
+                {% if project.status == 'ACTIVE' %}<span class="badge bg-success">{{ project.get_status_display }}</span>
+                {% elif project.status == 'PAUSED' %}<span class="badge bg-warning text-dark">{{ project.get_status_display }}</span>
+                {% else %}<span class="badge bg-secondary">{{ project.get_status_display }}</span>{% endif %}
             </td>
             <td>${{ project.budget }}</td>
+            <td>{{ project.assignment_set.count }}</td>
             <td>
-                <a href="#" class="btn btn-warning btn-sm">Edit</a>
-                <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                {% if puede_editar %}
+                <a href="{% url 'project_update' project.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                {% endif %}
+                {% if es_admin %}
+                <a href="{% url 'project_delete' project.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                {% endif %}
             </td>
         </tr>
         {% empty %}
-        <tr>
-            <td colspan="5" class="text-center">No projects found.</td>
-        </tr>
+        <tr><td colspan="6" class="text-center">No se encontraron proyectos.</td></tr>
         {% endfor %}
     </tbody>
 </table>

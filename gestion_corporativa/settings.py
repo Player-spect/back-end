@@ -1,17 +1,30 @@
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-# load enviromental_key
-load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+# Carga de variables de entorno.
+# Se admiten .env (archivo) y .env.local (desarrollo). Si .env es un
+# directorio (por ejemplo, un virtualenv), se ignora sin romper la carga.
+for env_name in ('.env', '.env.local'):
+    env_path = BASE_DIR / env_name
+    if env_path.is_file():
+        load_dotenv(env_path)
+
+SECRET_KEY = os.getenv('SECRET_KEY', 'dev-insecure-secret-key-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-# Elastic IP
-ALLOWED_HOSTS = ['52.204.32.220']
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('1', 'true', 'yes')
+
+# Elastic IP + desarrollo local
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv(
+        'ALLOWED_HOSTS', '52.204.32.220,localhost,127.0.0.1'
+    ).split(',')
+    if host.strip()
+]
 
 # Application definition
 
@@ -24,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'recursos_humanos',
     'operaciones',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -32,6 +46,9 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Exige sesión iniciada para todas las vistas, salvo las marcadas
+    # explícitamente con @login_not_required (login y recuperación de clave).
+    'django.contrib.auth.middleware.LoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -70,6 +87,14 @@ DATABASES = {
     }
 }
 
+# En desarrollo, si no hay configuración de MySQL disponible se usa SQLite.
+# En producción (AWS/EC2) se deben definir las variables DB_* para usar MySQL.
+if not os.environ.get('DB_HOST'):
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
 
@@ -79,12 +104,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 8},
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    {
+        'NAME': 'core.validators.ComplexPasswordValidator',
     },
 ]
 
@@ -108,12 +137,23 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Archivos estáticos en producción (collectstatic en EC2)
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+# Autenticación: rutas de redirección propias (sin Django Admin)
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+
+# Email (recuperación de contraseña)
+# Por defecto se imprime en consola; en producción configurar SMTP por entorno.
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend'
+)
+EMAIL_HOST = os.getenv('EMAIL_HOST', '')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('1', 'true', 'yes')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@gestioncorporativa.cl')

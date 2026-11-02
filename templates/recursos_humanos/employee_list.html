@@ -1,35 +1,34 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load auth_tags %}
 
-{% block header %}Employee Directory{% endblock %}
+{% block title %}Empleados{% endblock %}
+{% block header %}Empleados{% endblock %}
 
 {% block content %}
-    <!-- Agregar la imagen-->
-<div class="mb-4 text-center">
-    <img src="{% static 'img/' %}" alt="HR Banner" class="img-fluid rounded" style="max-height: 200px;">
+{% has_group 'Administrador' 'Supervisor' as puede_editar %}
+{% has_group 'Administrador' as es_admin %}
+<div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
+    <div>
+        {% if puede_editar %}
+        <a href="{% url 'employee_create' %}" class="btn btn-success">Agregar empleado</a>
+        {% endif %}
+    </div>
+    <form class="d-flex" method="get">
+        <input class="form-control me-2" type="search" name="q" value="{{ q }}" placeholder="Buscar...">
+        <button class="btn btn-outline-primary" type="submit">Buscar</button>
+        {% if q %}<a href="{% url 'employee_list' %}" class="btn btn-outline-secondary ms-2">Limpiar</a>{% endif %}
+    </form>
 </div>
 
-<div class="d-flex justify-content-between mb-3">
-    <div>
-        <a href="#" class="btn btn-success">Add Employee</a>
-    </div>
-    <div>
-        <form class="d-flex">
-            <input class="form-control me-2" type="search" placeholder="Search...">
-            <button class="btn btn-outline-primary" type="submit">Search</button>
-        </form>
-    </div>
-</div>
-
-<table class="table table-striped table-bordered">
+<table class="table table-striped table-bordered bg-white align-middle">
     <thead class="table-dark">
         <tr>
             <th>RUT</th>
-            <th>Name</th>
-            <th>Position</th>
-            <th>Email</th>
-            <th>Department</th>
-            <th>Actions</th>
+            <th>Nombre</th>
+            <th>Cargo</th>
+            <th>Correo</th>
+            <th>Departamento</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
@@ -41,14 +40,16 @@
             <td>{{ employee.email }}</td>
             <td>{{ employee.department.name }}</td>
             <td>
-                <a href="#" class="btn btn-warning btn-sm">Edit</a>
-                <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                {% if puede_editar %}
+                <a href="{% url 'employee_update' employee.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                {% endif %}
+                {% if es_admin %}
+                <a href="{% url 'employee_delete' employee.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                {% endif %}
             </td>
         </tr>
         {% empty %}
-        <tr>
-            <td colspan="6" class="text-center">No employees found in the database.</td>
-        </tr>
+        <tr><td colspan="6" class="text-center">No se encontraron empleados.</td></tr>
         {% endfor %}
     </tbody>
 </table>
