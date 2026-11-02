@@ -1,0 +1,48 @@
+{
+  "departamentos": [
+    {"nombre": "Tecnología", "descripcion": "Área de TI y desarrollo de software"},
+    {"nombre": "Operaciones", "descripcion": "Gestión logística y operativa"}
+  ],
+  "empleados": [
+    {
+      "rut": "11.111.111-1",
+      "nombre": "Carlos Mendoza",
+      "cargo": "Desarrollador Backend",
+      "email": "cmendoza@empresa.cl",
+      "departamento": "Tecnología"
+    },
+    {
+      "rut": "22.222.222-2",
+      "nombre": "Ana Silva",
+      "cargo": "Gerente de Operaciones",
+      "email": "asilva@empresa.cl",
+      "departamento": "Operaciones"
+    }
+  ],
+  "proyectos": [
+    {
+      "nombre": "Migración Cloud AWS",
+      "fecha_inicio": "2024-03-01",
+      "estado": "ACTIVE",
+      "presupuesto": 15000
+    },
+    {
+      "nombre": "Actualización de Servidores Debian",
+      "fecha_inicio": "2024-05-15",
+      "estado": "PAUSED",
+      "presupuesto": 8500
+    }
+  ],
+  "asignaciones": [
+    {
+      "empleado_rut": "11.111.111-1",
+      "proyecto_nombre": "Migración Cloud AWS",
+      "rol": "Arquitecto de Software"
+    },
+    {
+      "empleado_rut": "22.222.222-2",
+      "proyecto_nombre": "Migración Cloud AWS",
+      "rol": "Supervisora General"
+    }
+  ]
+}
